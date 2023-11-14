@@ -8,6 +8,7 @@ const cors = require("cors");
 const { errors } = require("celebrate");
 const bodyParser = require("body-parser");
 
+const routes = require("./routes");
 const { corsSettings } = require("./utils/constants");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { fetchAndSavePeriodically } = require("./updaters/movies");
@@ -24,16 +25,14 @@ mongoose.connect("mongodb://localhost:27017/watcha", {}).catch((err) => {
 	console.log(err, "Произошла ошибка при попытке подключения к базе данных");
 });
 
-fetchAndSavePeriodically();
+// fetchAndSavePeriodically();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
-app.get("/", (req, res) => {
-	console.log("ok");
-});
+app.use("/", routes);
 
 io.on("connection", (socket) => {
 	console.log("a user connected");

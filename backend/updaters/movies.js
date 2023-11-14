@@ -3,12 +3,13 @@ const NotFoundError = require("../errors/notFoundError");
 const ValidationError = require("../errors/validationError");
 const ForbiddenAccessError = require("../errors/forbiddenAccessError");
 const axios = require("axios");
+const { urlList } = require("../utils/constants");
 const { KINO_TOKEN } = process.env;
 
-const fetchDataFromKinopoisk = async () => {
+const fetchDataFromKinopoisk = async (params) => {
 	try {
 		const response = await axios.get(
-			"https://api.kinopoisk.dev/v1.4/movie?lists=top250&limit=250",
+			`https://api.kinopoisk.dev/v1.4/movie?${params}`,
 			{
 				headers: {
 					"x-api-key": KINO_TOKEN,
@@ -26,36 +27,39 @@ const fetchAndSavePeriodically = async () => {
 	while (true) {
 		console.log("fetchAndSave");
 		try {
-			const data = await fetchDataFromKinopoisk();
-			Array.from(data.docs).map((movie) => {
-				// const existingMovie = Movie.findOne({ kinopoiskId: movie.id });
+			urlList.forEach(async (url) => {
+				console.log(url);
+				const data = await fetchDataFromKinopoisk(url);
+				Array.from(data.docs).map((movie) => {
+					// const existingMovie = Movie.findOne({ kinopoiskId: movie.id });
 
-				// if (existingMovie) {
-				// 	console.log("movie already exists", movie.name);
-				// } else {
-				// 	console.log(movie.name);
+					// if (existingMovie) {
+					// 	console.log("movie already exists", movie.name);
+					// } else {
+					// 	console.log(movie.name);
 
-				// }
-				Movie.create({
-					kinopoiskId: movie.id,
-					country: movie.countries,
-					duration: movie.isSeries ? movie.seriesLength : movie.movieLength,
-					year: movie.year,
-					description: movie.description,
-					shortDescription: movie.shortDescription,
-					image: movie.poster.url,
-					thumbnail: movie.poster.previewUrl,
-					nameRU: movie.name,
-					nameEN: movie.alternativeName || movie.enName,
-					serial: movie.isSeries,
-					ratingKinopoisk: movie.rating.kp,
-					genres: movie.genres,
-				}).catch((e) => {
-					if (e.code === 11000) {
-						console.log("film already exists", movie.name);
-					} else {
-						console.log("error new:", e, movie.name);
-					}
+					// }
+					Movie.create({
+						kinopoiskId: movie.id,
+						country: movie.countries,
+						duration: movie.isSeries ? movie.seriesLength : movie.movieLength,
+						year: movie.year,
+						description: movie.description,
+						shortDescription: movie.shortDescription,
+						image: movie.poster.url,
+						thumbnail: movie.poster.previewUrl,
+						nameRU: movie.name,
+						nameEN: movie.alternativeName || movie.enName,
+						serial: movie.isSeries,
+						ratingKinopoisk: movie.rating.kp,
+						genres: movie.genres,
+					}).catch((e) => {
+						if (e.code === 11000) {
+							console.log("film already exists", movie.name);
+						} else {
+							console.log("error new:", e, movie.name);
+						}
+					});
 				});
 			});
 		} catch (err) {

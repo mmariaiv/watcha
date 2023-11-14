@@ -5,14 +5,8 @@ const ValidationError = require("../errors/validationError");
 const UnauthorizedError = require("../errors/unathorizedError");
 const ConflictError = require("../errors/conflictError");
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
 const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require("../models/user");
-const ValidationError = require("../errors/validationError");
-const UnauthorizedError = require("../errors/unathorizedError");
-const ConflictError = require("../errors/conflictError");
 
 module.exports.createUser = (req, res, next) => {
 	bcrypt

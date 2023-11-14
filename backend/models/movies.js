@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const { regexLinkValidation } = require("../utils/constants");
 
 const movieSchema = new mongoose.Schema({
-  kinopoiskId: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
+	kinopoiskId: {
+		type: Number,
+		required: true,
+		unique: true,
+	},
 	country: {
 		type: Array,
 	},
@@ -47,15 +47,15 @@ const movieSchema = new mongoose.Schema({
 	serial: {
 		type: Boolean,
 		required: true,
-  },
-  ratingKinopoisk: {
-    type: Number,
-    required: true,
+	},
+	ratingKinopoisk: {
+		type: Number,
+		required: true,
 	},
 	genres: {
 		type: Array,
 		required: true,
-	}
+	},
 });
 
 module.exports = mongoose.model("movie", movieSchema);
