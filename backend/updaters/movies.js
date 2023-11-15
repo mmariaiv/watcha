@@ -53,6 +53,7 @@ const fetchAndSavePeriodically = async () => {
 						serial: movie.isSeries,
 						ratingKinopoisk: movie.rating.kp,
 						genres: movie.genres,
+						ageRating: movie.ageRating,
 					}).catch((e) => {
 						if (e.code === 11000) {
 							console.log("film already exists", movie.name);

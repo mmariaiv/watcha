@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 const NotFoundError = require("../errors/notFoundError");
 const ValidationError = require("../errors/validationError");
 const ConflictError = require("../errors/conflictError");
@@ -23,6 +24,48 @@ module.exports.getCurrentUser = (req, res, next) => {
 				next(err);
 			}
 		});
+};
+
+module.exports.updatePassword = (req, res, next) => {
+	if (!req.body.password) {
+		throw new ValidationError(
+			"Переданы неккоректные данные в метод обновления пароля"
+		);
+	}
+
+	bcrypt.hash(req.body.password, 10).then((hash) => {
+		console.log(hash);
+		console.log(req.body.password);
+		User.findByIdAndUpdate(
+			req.user._id,
+			{ password: hash },
+			{
+				new: true,
+				runValidators: true,
+			}
+		)
+			.then((user) => {
+				res.status(200).send({
+					_id: user._id,
+					name: user.name,
+				});
+			})
+			.catch((err) => {
+				if (err.name === "CastError") {
+					next(new ValidationError("Переданы неккоректные данные"));
+				} else if (err.name === "ValidationError") {
+					next(
+						new ValidationError(
+							"Переданы неккоректные данные при смене информации о пользователе"
+						)
+					);
+				} else if (err.code === 11000) {
+					next(new ConflictError("Этот email уже занят"));
+				} else {
+					next(err);
+				}
+			});
+	});
 };
 
 module.exports.updateUserInfo = (req, res, next) => {

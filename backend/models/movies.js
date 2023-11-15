@@ -56,6 +56,9 @@ const movieSchema = new mongoose.Schema({
 		type: Array,
 		required: true,
 	},
+	ageRating: {
+		type: Number,
+	}
 });
 
 module.exports = mongoose.model("movie", movieSchema);
