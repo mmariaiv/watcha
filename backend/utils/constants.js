@@ -7,6 +7,8 @@ const regexLinkValidation = /https?:\/\/(w+)?.+\.\w+(\/.+)?/;
 
 const regexNameValidation = /^[a-zа-я\s-]+$/i;
 
+const regexObjectId = /^[0-9a-fA-F]{24}$/;
+
 const urlList = [
 	"lists=top250&limit=250",
 	"lists=series-top250&limit=250",
@@ -27,4 +29,5 @@ module.exports = {
 	regexLinkValidation,
 	urlList,
 	regexNameValidation,
+	regexObjectId,
 };

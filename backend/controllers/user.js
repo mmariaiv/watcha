@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const Movie = require("../models/movies");
 const NotFoundError = require("../errors/notFoundError");
 const ValidationError = require("../errors/validationError");
 const ConflictError = require("../errors/conflictError");
@@ -116,3 +117,87 @@ module.exports.updateUserInfo = (req, res, next) => {
 			}
 		});
 };
+
+module.exports.addMovieToFavourite = (req, res, next) => {
+	const {movieId} = req.body;
+
+	if (!movieId ) {
+		throw new ValidationError(
+			"Не передан id сохраняемого фильма"
+		);
+	}
+
+	User.findById(req.user._id)
+		.then((user) => {
+			if (!user) {
+				throw new NotFoundError('Пользователь не найден');
+			}
+			if (user.saved.includes(movieId)) {
+				return res.status(400).send({message: 'Фильм уже был добавлен в избранное'});
+			}
+
+			user.saved.push(movieId);
+
+			return user.save().then((updatedUser) => {
+				res.status(200).send({
+					saved: updatedUser.saved,
+				});
+			});
+		}).catch((err) => {
+			if (err.name === 'CastError') {
+				next(new ValidationError('Передан неккоректный ID фильма'))
+			} else {
+				next(err);
+			}
+	})
+}
+
+module.exports.removeMovieFromFavourite = (req, res, next) => {
+	const {movieId} = req.body;
+
+	if (!movieId) {
+		throw new ValidationError('Не передан id фильма');
+	}
+
+	User.findById(req.user._id)
+		.then((user) => {
+			if (!user) {
+				throw new NotFoundError('Пользователь не найден');
+			}
+
+			if (!user.saved.includes(movieId)) {
+				throw new NotFoundError('Фильм не найден в избранном')
+			}
+
+			user.saved.pull(movieId);
+
+			return user.save().then((updatedUser) => {
+				res.status(200).send({
+					saved: updatedUser.saved,
+				})
+			})
+		}).catch((err) => {
+			if (err.name === 'CastError') {
+				next(new ValidationError('Передан некорректный id фильма'));
+			} else {
+				next(err);
+			}
+	})
+}
+
+module.exports.getFavourites = (req, res, next) => {
+	User.findById(req.user._id)
+		.populate('saved')
+		.then((user) => {
+			if (!user) {
+				throw new NotFoundError('Пользователь не найден');
+			}
+
+			res.status(200).send({
+				movies: user.saved
+			});
+		}).catch((err) => {
+			console.log(err);
+			next(err);
+		})
+}

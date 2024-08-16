@@ -31,14 +31,14 @@ const fetchAndSavePeriodically = async () => {
 				console.log(url);
 				const data = await fetchDataFromKinopoisk(url);
 				Array.from(data.docs).map((movie) => {
-					// const existingMovie = Movie.findOne({ kinopoiskId: movie.id });
+					const existingMovie = Movie.findOne({ kinopoiskId: movie.id });
 
-					// if (existingMovie) {
-					// 	console.log("movie already exists", movie.name);
-					// } else {
-					// 	console.log(movie.name);
+					if (existingMovie) {
+						console.log("movie already exists", movie.name);
+					} else {
+						console.log(movie.name);
 
-					// }
+					}
 					Movie.create({
 						kinopoiskId: movie.id,
 						country: movie.countries,
@@ -46,8 +46,8 @@ const fetchAndSavePeriodically = async () => {
 						year: movie.year,
 						description: movie.description,
 						shortDescription: movie.shortDescription,
-						image: movie.poster.url,
-						thumbnail: movie.poster.previewUrl,
+						image: movie.poster?.url,
+						thumbnail: movie.poster?.previewUrl,
 						nameRU: movie.name,
 						nameEN: movie.alternativeName || movie.enName,
 						serial: movie.isSeries,

@@ -23,9 +23,14 @@ const userSchema = new mongoose.Schema({
 	password: {
 		type: String,
     required: true,
-    
+
 		select: false,
 	},
+	saved: {
+		type: mongoose.Schema.Types.Array,
+		ref: 'movie',
+		default: [],
+	}
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
