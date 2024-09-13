@@ -4,9 +4,11 @@ const { createServer } = require("http");
 const { join } = require("path");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
+const {socketHandlers} = require("./server/socketHandlers");
 const cors = require("cors");
 const { errors } = require("celebrate");
 const bodyParser = require("body-parser");
+
 
 const routes = require("./routes");
 const { corsSettings } = require("./utils/constants");
@@ -25,6 +27,8 @@ mongoose.connect("mongodb://localhost:27017/watcha", {}).catch((err) => {
 	console.log(err, "Произошла ошибка при попытке подключения к базе данных");
 });
 
+socketHandlers(io);
+
 // fetchAndSavePeriodically();
 
 app.use(bodyParser.json());
@@ -34,18 +38,6 @@ app.use(requestLogger);
 
 app.use("/", routes);
 
-io.on("connection", (socket) => {
-	console.log("a user connected");
-
-	socket.on("event", (count) => {
-		io.emit("responseEvent", { message: "ok" });
-		console.log("count is " + count);
-	});
-
-	socket.on("disconnect", () => {
-		console.log("user disconnected");
-	});
-});
 
 app.use(errorLogger);
 
